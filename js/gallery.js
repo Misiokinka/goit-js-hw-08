@@ -69,12 +69,12 @@ if (typeof document !== 'undefined') {
   const newListImage = images
     .map(
       item => `<li class="gallery-item">
-  <a class="gallery-link" href="large-image.jpg">
+  <a class="gallery-link" href=${item.original}>
     <img
       class="gallery-image"
-      src=${item.preview}
-      data-source=${item.original}
-      alt=${item.description}
+      src="${item.preview}"
+      data-source="${item.original}"
+      alt="${item.description}"
   </a>
 </li>`
     )
@@ -90,16 +90,23 @@ if (typeof document !== 'undefined') {
       const originalSource = clickedElement.getAttribute('data-source');
       const originalDescription = clickedElement.getAttribute('alt');
 
-      const instance = basicLightbox.create(
-        `<img src=${originalSource} alt=${originalDescription}/>`
-      );
-      instance.show();
-
-      document.addEventListener('keydown', event => {
+      function addRemoveInstance(event) {
         if (event.code === 'Escape' && basicLightbox.visible()) {
           instance.close();
         }
-      });
+      }
+      const instance = basicLightbox.create(
+        `<img src="${originalSource}" alt="${originalDescription}"/>`,
+        {
+          onShow: () => {
+            document.addEventListener('keydown', addRemoveInstance);
+          },
+          onClose: () => {
+            document.removeEventListener('keydown', addRemoveInstance);
+          },
+        }
+      );
+      instance.show();
     }
   });
 }
